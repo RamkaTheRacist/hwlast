@@ -1,0 +1,54 @@
+version: '3.0'
+
+services:
+  auth:
+    build: ./auth
+    env_file:
+      - ./auth/.env
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - test
+    ports:
+      - '3000:3000'
+
+  rabbitmq:
+    image: rabbitmq
+    networks:
+      - test
+    ports:
+      - '5672:5672'
+    restart: always
+
+  prof:
+    build: ./prof
+    env_file:
+      - ./prof/.env
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - test
+    ports:
+      - '3001:3001'
+
+  postgres:
+    image: postgres:12
+    env_file:
+      - ./auth/.env
+    environment:
+      PG_DATA: /var/lib/postgresql/data
+    networks:
+      - test
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+    
+volumes:
+  pgdata:
+
+networks:
+  test:
